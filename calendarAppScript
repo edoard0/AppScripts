@@ -1,0 +1,153 @@
+function onFormSubmit(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var lastRow = sheet.getLastRow();
+
+  // Get user scores from the form responses (adjust column numbers based on your sheet)
+  var clearGoals = sheet.getRange(lastRow, 2).getValue();  // Column B
+  var timeBlocking = sheet.getRange(lastRow, 3).getValue();  // Column C
+  var balanceWorkLife = sheet.getRange(lastRow, 4).getValue();  // Column D
+  var flexibility = sheet.getRange(lastRow, 5).getValue();  // Column E
+  var regularBreaks = sheet.getRange(lastRow, 6).getValue();  // Column F
+  var reviewReflect = sheet.getRange(lastRow, 7).getValue();  // Column G
+  var useOfTechnology = sheet.getRange(lastRow, 8).getValue();  // Column H
+  var realisticTimeEstimates = sheet.getRange(lastRow, 9).getValue();  // Column I
+  var incorporateDowntime = sheet.getRange(lastRow, 10).getValue();  // Column J
+  var healthyRoutines = sheet.getRange(lastRow, 11).getValue();  // Column K
+  var accountabilitySupport = sheet.getRange(lastRow, 12).getValue();  // Column L
+
+  // Calculate the total score (sum of all 11 factors)
+  var totalScore = clearGoals + timeBlocking + balanceWorkLife + flexibility + regularBreaks +
+                   reviewReflect + useOfTechnology + realisticTimeEstimates + incorporateDowntime +
+                   healthyRoutines + accountabilitySupport;
+
+  // Determine the calendar quality score based on the total score
+  var qualityScore;
+  if (totalScore >= 45) {
+    qualityScore = "Great (45-55: Excellent quality, well-optimized)";
+  } else if (totalScore >= 34) {
+    qualityScore = "Good (34-44: Good quality, generally effective)";
+  } else if (totalScore >= 23) {
+    qualityScore = "Low (23-33: Fair quality, some areas need attention)";
+  } else {
+    qualityScore = "Poor (11-22: Needs significant improvement)";
+  }
+
+  // Get the user's email (assuming it's in the first column, adjust if needed)
+  var userEmail = sheet.getRange(lastRow, 13).getValue(); 
+
+  // Calculate the fill color based on the total score
+  let fillColor;
+  if (totalScore >= 11 && totalScore <= 22) {
+    fillColor = '#FF0000'; // Red for Poor Scores
+  } else if (totalScore >= 23 && totalScore <= 33) {
+    fillColor = '#FFA500'; // Orange for Low Scores
+  } else if (totalScore >= 34 && totalScore <= 44) {
+    fillColor = '#90EE90'; // Light Green for Medium Scores
+  } else if (totalScore >= 45 && totalScore <= 55) {
+    fillColor = '#76c7c0'; // Green for High Scores
+  } else {
+    fillColor = '#ddd'; // Default color
+  }
+
+  // Calculate the width of the energy bar based on the total score
+  const energyBarWidth = totalScore === 11 ? 5 : ((totalScore - 11) / 44) * 100;
+
+  MailApp.sendEmail({
+    to: userEmail,
+    subject: "Your Calendar Quality Score from MindMate",
+    htmlBody: `
+      <div style="font-family: Arial, sans-serif; color: #333; background-color: #f7f7f7; padding: 20px;">
+        <div style="background-color: #FFA500; text-align: center; padding: 20px;">
+          <!-- Orange Header without Image -->
+        </div>
+        <h2 style="color: #003366; text-align: center;">Your Calendar Quality Score</h2>
+
+        <p>Thank you for completing the assessment!</p>
+
+        <!-- Compact Score Overview and Energy Bar Box -->
+<div style="border: 1px solid #ddd; background-color: #fff; padding: 10px; width: 580px; border-radius: 8px; margin: 20px auto; text-align: center;">
+  <h3 style="color: #003366; margin-top: 0;">Score Overview</h3>
+  <p style="margin: 5px 0;">
+    <strong>Total Score:</strong> <span style="color: #000;">${totalScore}</span> / 55
+  </p>
+  <p style="margin: 5px 0;">
+    <strong>Quality Rating:</strong> <span style="color: #000;">${qualityScore}</span>
+  </p>
+  
+  <!-- Compact Energy Bar -->
+  <div style="position: relative; width: 100%; height: 20px; background-color: #ddd; border-radius: 10px; overflow: hidden; margin: 10px 0;">
+    <div 
+      style="height: 100%; width: ${energyBarWidth}%; 
+        background-color: ${fillColor};  
+        border-radius: 10px; transition: width 0.5s;">
+    </div>
+  </div>
+</div>
+
+        <!-- New Section for Suggestions and Resources -->
+        <div style="border: 1px solid #ddd; background-color: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; padding: 20px;">
+          <h3 style="color: #003366; margin-top: 0; text-align: center;">Improving Your Calendar Quality</h3>
+          <p style="text-align: center;">To enhance productivity and achieve a balanced schedule, explore these resources:</p>
+          <ul style="list-style-type: none; padding: 0; text-align: center;">
+            <li><a href="https://asana.com/resources/how-prioritize-tasks-work" target="_blank">How to Set Clear Goals and Prioritize Your Tasks</a></li>
+            <li><a href="https://todoist.com/productivity-methods/time-blocking" target="_blank">Time Blocking — Your Complete Guide to More Focused Work</a></li>
+            <li><a href="https://www.entrepreneur.com/living/the-definitive-guide-to-achieving-work-life-balance/434972" target="_blank">The Ultimate Guide to Work-Life Balance</a></li>
+            <li><a href="https://hbr.org/2021/09/the-future-of-flexibility-at-work" target="_blank">How to Stay Flexible in a Rigid Schedule</a></li>
+            <li><a href="https://www.linkedin.com/pulse/power-breaks-why-taking-time-off-can-boost-your-success-reza-ghiabi/" target="_blank">The Power of Breaks: Why Taking Time Off Is Essential for Productivity</a></li>
+            <li><a href="https://hbr.org/2023/12/how-to-create-your-own-year-in-review" target="_blank">How to Conduct a Personal Annual Review</a></li>
+            <li><a href="https://uk.pcmag.com/productivity/138803/the-best-productivity-apps-for-2022" target="_blank">The Best Productivity Apps for 2023</a></li>
+            <li><a href="https://unrubble.com/blog/realistic-time-estimation" target="_blank">How to Estimate Time for Tasks: 9 Best Practices</a></li>
+            <li><a href="https://www.scientificamerican.com/article/mental-downtime/" target="_blank">Why You Need Downtime in Your Schedule</a></li>
+            <li><a href="https://www.health.harvard.edu/staying-healthy/10-habits-for-good-health" target="_blank">7 Healthy Daily Routines to Boost Your Well-Being</a></li>
+          </ul>
+        </div>
+
+        <!-- Final Section for Staying Updated -->
+        <div style="border: 1px solid #ddd; background-color: #fff; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <h3 style="color: #003366; margin-top: 0;">Stay Updated on Our Progress</h3>
+          <div style="text-align: center; margin: 10px 0;">
+            <img 
+              src="https://drive.google.com/uc?export=view&id=1Dv1BN_Ea2xBbA39MSg4Q0d5oKIugiyV_" 
+              alt="Stay Updated" 
+              style="width: 80%; height: auto; max-width: 700px; border-radius: 10px;"
+            >
+          </div>
+          <h3 style="font-size: 20px; color: #003366; text-align: center; margin-top: 30px;">Did you enjoy this demo? Leave feedback</h3>
+
+          
+              <div style="text-align: center; margin-top: 20px;">
+              
+                <!-- Thumbs Up -->
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSe0aSsBCFGAUxANbW_WBd00Q6AlQVKjovMAOeYoqzmkow2y6g/viewform?usp=pp_url&entry.70855871=Yes" 
+                  style="text-decoration: none; margin-right: 10px;">
+                  👍
+                </a>
+
+                <!-- Thumbs Down -->
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSe0aSsBCFGAUxANbW_WBd00Q6AlQVKjovMAOeYoqzmkow2y6g/viewform?usp=pp_url&entry.70855871=No" 
+                  style="text-decoration: none; margin-left: 10px;">
+                  👎
+                </a>
+            </div>
+        </div>
+
+        <br><br>
+        <div style="text-align: center;">
+          <img 
+            src="https://drive.google.com/uc?export=view&id=12GBNh2klEY1Z3iW4uU1WmqJUS_leMiKx" 
+            alt="Footer Logo" 
+            style="width: 400px; height: auto;"
+          >
+          <p style="margin-top: 20px;">
+            <a href="https://intuitive-measure-504365.framer.app/" target="_blank" style="color: #003366; text-decoration: underline;">
+              Back to MindMate Homepage
+            </a>
+          </p>
+        </div>
+      </div>
+
+
+      
+    `
+  });
+}
