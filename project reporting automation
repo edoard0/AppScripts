@@ -1,0 +1,55 @@
+function sendWeeklyReport() {
+  // Replace with your Google Slides presentation ID
+  const presentationId = 'YOUR_PRESENTATION_ID_HERE';
+
+  // Get the Google Slides presentation file by ID and export it as a PDF
+  const presentationFile = DriveApp.getFileById(presentationId);
+  const pdfBlob = presentationFile.getAs('application/pdf');
+
+  // Set up email date formatting and details
+  const today = new Date();
+  // Format the date. For example: MM/DD/YYYY
+  const formattedDate = Utilities.formatDate(today, Session.getScriptTimeZone(), 'MM/dd/yyyy');
+  // Construct the email subject with the formatted date
+  const emailSubject = `Weekly Report - Report Date: ${formattedDate}`;
+
+  // Define the recipient email address
+  const recipient = 'YOUR_RECIPIENT_EMAIL_HERE'; 
+  // Optional: Define Bcc recipient email address
+  const bccRecipient = 'YOUR_BCC_EMAIL_HERE'; 
+
+  // URL for the logo image - replace with your desired image URL
+  const logoUrl = 'YOUR_LOGO_URL_HERE';
+
+  // Construct the HTML email body
+  const body = `
+    <html>
+      <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="${logoUrl}" alt="Logo" style="max-width: 200px; height: auto;">
+          </div>
+          <h1 style="text-align: center; color: #4CAF50;">Weekly Report</h1>
+          <p>Dear Team,</p>
+          <p>Please find attached the latest weekly report, providing an overview of key points and updates.</p>
+          <h2 style="color: #4CAF50;">Key Resources:</h2>
+          <ul>
+            <!-- Replace the href values with actual resource links -->
+            <li><a href="LINK_TO_RESOURCE_1" style="color: #4CAF50; text-decoration: underline;">Resource 1</a></li>
+            <li><a href="LINK_TO_RESOURCE_2" style="color: #4CAF50; text-decoration: underline;">Resource 2</a></li>
+            <li><a href="LINK_TO_RESOURCE_3" style="color: #4CAF50; text-decoration: underline;">Resource 3</a></li>
+          </ul>
+          <p style="text-align: center; font-style: italic; color: #666;">Thank you for your attention!</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send the email with the PDF attachment and optional Bcc
+  GmailApp.sendEmail(recipient, emailSubject, '', {
+    htmlBody: body,
+    attachments: [pdfBlob.setName('Weekly_Report.pdf')],
+    // Optional: Add the Bcc email address if needed
+    bcc: bccRecipient
+  });
+}
